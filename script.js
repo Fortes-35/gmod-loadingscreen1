@@ -1,63 +1,43 @@
-var filesTotal = 0;
-var filesNeeded = 0;
-var maxPlayers = 0;
-var mapName = '';
-var playersUrl = 'https://your-php-host.com/players.php'; // ЗАМЕНИТЕ на URL вашего players.php
+let totalFiles = 0;
+let neededFiles = 0;
 
-// Инициализация текста прогресса при старте
-document.getElementById('loading-text').innerHTML = 'Загрузка... 0%';
-
-// Функция GMod
-function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode) {
-    mapName = mapname;
-    maxPlayers = maxplayers;
-    document.getElementById('map').innerHTML = 'Карта: ' + mapName;
-    loadPlayerCount();
+// Информация о сервере
+function GameDetails(serverName, serverURL, mapName, maxPlayers, steamID, gameMode) {
+    document.getElementById("server").innerHTML = "Сервер: " + serverName;
+    document.getElementById("map").innerHTML = "Карта: " + mapName;
+    document.getElementById("players").innerHTML = "Игроков: 0/" + maxPlayers;
 }
 
-// Общее количество файлов
+// Установка количества файлов
 function SetFilesTotal(total) {
-    filesTotal = total;
-    updateProgress();
+    totalFiles = total;
 }
 
-// Оставшиеся файлы
+// Установка оставшихся файлов
 function SetFilesNeeded(needed) {
-    filesNeeded = needed;
+    neededFiles = needed;
     updateProgress();
 }
 
-// Статус (Lua Started! и т.д.)
+// Обновление статуса загрузки
 function SetStatusChanged(status) {
-    document.getElementById('status').innerHTML = status;
+    document.getElementById("status").innerHTML = status;
+    document.getElementById("loading-text").innerHTML = status;
 }
 
-// Загрузка файла (статус файла показывается внизу, прогресс — в баре)
+// Загрузка файла
 function DownloadingFile(fileName) {
-    document.getElementById('status').innerHTML = 'Загрузка файла: ' + fileName;
-    updateProgress(); // Обновляем прогресс при каждой загрузке файла
+    const text = "Загрузка файла: " + fileName;
+    document.getElementById("status").innerHTML = text;
+    document.getElementById("loading-text").innerHTML = text;
 }
 
+// Прогресс-бар
 function updateProgress() {
-    if (filesTotal > 0) {
-        var percent = Math.round((filesTotal - filesNeeded) / filesTotal * 100);
-        document.getElementById('progress').style.width = percent + '%';
-        document.getElementById('loading-text').innerHTML = 'Загрузка... ' + percent + '%'; // Всегда показывает прогресс вместо статического текста
-    } else {
-        document.getElementById('loading-text').innerHTML = 'Загрузка... 0%';
-    }
-}
+    if (totalFiles <= 0) return;
 
-function loadPlayerCount() {
-    fetch(playersUrl)
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('players').innerHTML = 'Игроков на сервере ' + data.players + '/' + data.maxplayers;
-        })
-        .catch(() => {
-            document.getElementById('players').innerHTML = 'Игроков на сервере 0/' + maxPlayers;
-        });
-}
+    let percent = Math.floor(((totalFiles - neededFiles) / totalFiles) * 100);
+    percent = Math.min(Math.max(percent, 0), 100);
 
-// Авто-загрузка игроков каждые 5 сек (опционально)
-setInterval(loadPlayerCount, 5000);
+    document.getElementById("progress").style.width = percent + "%";
+}
