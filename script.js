@@ -3,7 +3,6 @@ let neededFiles = 0;
 
 // Информация о сервере
 function GameDetails(serverName, serverURL, mapName, maxPlayers, steamID, gameMode) {
-    document.getElementById("server").innerHTML = "Сервер: " + serverName;
     document.getElementById("map").innerHTML = "Карта: " + mapName;
     document.getElementById("players").innerHTML = "Игроков: 0/" + maxPlayers;
 }
