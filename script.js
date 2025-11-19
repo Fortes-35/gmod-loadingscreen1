@@ -23,11 +23,6 @@ function SetFilesNeeded(needed) {
 function SetStatusChanged(status) {
     document.getElementById("status").innerHTML = status;
     document.getElementById("loading-text").innerHTML = status;
-
-    // Когда статус включает "lua" (независимо от регистра), заполняем прогресс-бар до 100% плавно
-    if (status.toLowerCase().includes("lua")) {
-        document.getElementById("progress").style.width = "100%";
-    }
 }
 
 // Загрузка файла
@@ -41,9 +36,8 @@ function DownloadingFile(fileName) {
 function updateProgress() {
     if (totalFiles <= 0) return;
 
-    let percent = ((totalFiles - neededFiles) / totalFiles) * 100;
+    let percent = Math.floor(((totalFiles - neededFiles) / totalFiles) * 100);
     percent = Math.min(Math.max(percent, 0), 100);
 
-    // Убрал Math.floor для более плавного расчета процента
     document.getElementById("progress").style.width = percent + "%";
 }
