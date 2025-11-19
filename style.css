@@ -41,7 +41,7 @@ body {
     height: 100%;
     width: 0%;
     background-color: red;
-    transition: width .3s;
+    transition: width 1s ease;
     display: flex;
     align-items: center;
 }

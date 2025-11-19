@@ -1,43 +1,54 @@
-let totalFiles = 0;
-let neededFiles = 0;
+let progress = 0;
+const progressBar = document.getElementById("progress");
+const statusText = document.getElementById("status");
+const loadingText = document.getElementById("loading-text");
+const playersText = document.getElementById("players");
+const mapText = document.getElementById("map");
 
-// Информация о сервере
-function GameDetails(serverName, serverURL, mapName, maxPlayers, steamID, gameMode) {
-    document.getElementById("server").innerHTML = "Сервер: " + serverName;
-    document.getElementById("map").innerHTML = "Карта: " + mapName;
-    document.getElementById("players").innerHTML = "Игроков: 0/" + maxPlayers;
+function setProgress(target) {
+    progress = Math.min(target, 100);
+    progressBar.style.width = progress + "%";
 }
 
-// Установка количества файлов
-function SetFilesTotal(total) {
-    totalFiles = total;
+function smoothIncrease(to) {
+    let start = progress;
+    let end = to;
+    let duration = 1200;
+    let startTime = performance.now();
+
+    function animate(time) {
+        let t = (time - startTime) / duration;
+        if (t > 1) t = 1;
+
+        let value = start + (end - start) * t;
+        setProgress(value);
+
+        if (t < 1) requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
 }
 
-// Установка оставшихся файлов
-function SetFilesNeeded(needed) {
-    neededFiles = needed;
-    updateProgress();
-}
+window.addEventListener("message", function (event) {
+    const data = event.data;
 
-// Обновление статуса загрузки
-function SetStatusChanged(status) {
-    document.getElementById("status").innerHTML = status;
-    document.getElementById("loading-text").innerHTML = status;
-}
+    if (data.type === "status") {
+        loadingText.textContent = data.text;
+        smoothIncrease(progress + 10);
+    }
 
-// Загрузка файла
-function DownloadingFile(fileName) {
-    const text = "Загрузка файла: " + fileName;
-    document.getElementById("status").innerHTML = text;
-    document.getElementById("loading-text").innerHTML = text;
-}
+    if (data.type === "download") {
+        loadingText.textContent = data.file;
+        smoothIncrease(progress + 3);
+    }
 
-// Прогресс-бар
-function updateProgress() {
-    if (totalFiles <= 0) return;
+    if (data.type === "info") {
+        mapText.textContent = "Карта: " + data.map;
+        playersText.textContent = `Игроков: ${data.players}/${data.maxPlayers}`;
+    }
 
-    let percent = Math.floor(((totalFiles - neededFiles) / totalFiles) * 100);
-    percent = Math.min(Math.max(percent, 0), 100);
-
-    document.getElementById("progress").style.width = percent + "%";
-}
+    if (data.type === "lua_started") {
+        loadingText.textContent = "Загрузка завершена!";
+        smoothIncrease(100);
+    }
+});
